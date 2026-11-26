@@ -1,0 +1,20 @@
+name: Attach release asset
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test
+      - name: Upload single-file card
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload -- "$RELEASE_TAG" dist/daily-energy-dashboard-card.js
