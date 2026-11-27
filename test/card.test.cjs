@@ -108,3 +108,19 @@ test('card title defaults when blank and renders custom text literally', () => {
     if (title?.includes('<')) assert.ok(!card.innerHTML.includes('<energy>'));
   }
 });
+
+test('measured power holds its state between changes while the forecast stays linear', () => {
+  const Card = load().elements.get('configurable-energy-dashboard-card');
+  const card = new Card();
+  card.hass = { language: 'en', states: {} };
+  card.setConfig({ ev_power: 'sensor.charger', pv_power: 'sensor.solar', forecast_entry: 'demo' });
+  const start = +new Date(2026, 0, 1);
+  const end = start + 24 * 3600000;
+  const rows = Array.from({ length: 11 }, () => []);
+  const samples = [[start, 0], [start + 12 * 3600000, 6000], [start + 18 * 3600000, 0]];
+  for (let i = 6; i <= 10; i++) rows[i] = samples;
+  card.render(rows, samples, start, end);
+  const measured = card.innerHTML.match(/d="M0\.00 220\.00H320\.00V0\.00H480\.00V220\.00"[^>]+stroke=/g);
+  assert.equal(measured.length, 5);
+  assert.match(card.innerHTML, /d="M0\.00 220\.00L320\.00 0\.00L480\.00 220\.00L[^"]+Z" fill="#fade2a"/);
+});
