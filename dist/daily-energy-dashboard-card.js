@@ -204,6 +204,8 @@
       var d = points.map(function (p, j) {
         var x = (p[0] - start) / (end - start) * w;
         var y = h - (Math.min(max, Math.max(i === 5 ? 0 : min, p[1])) - min) / (max - min) * h;
+        // Measured power holds its state until the next event. The forecast is interpolated.
+        if (j && grid && i < 5) return 'H' + x.toFixed(2) + 'V' + y.toFixed(2);
         return (j ? 'L' : 'M') + x.toFixed(2) + ' ' + y.toFixed(2);
       }).join('');
       if (!d) return '';
